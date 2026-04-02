@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Profile Manager{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+<body>
+
+  <header>
+    <div class="header-inner">
+      <span class="logo">🧠 Profile Manager</span>
+      <nav>
+        <a href="{% url 'create_candidate' %}">New Candidate</a>
+        <a href="{% url 'candidate_list' %}">Candidates</a>
+        <a href="{% url 'jobs' %}">Job Vacancies</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {% if error %}
+      <div class="alert alert-error">
+        <strong>⚠ Database unavailable:</strong> {{ error }}
+        <p>Please ensure Neo4j is running and try again.</p>
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>Profile Manager — Academic MVP · Django + Neo4j</p>
+  </footer>
+
+</body>
+</html>

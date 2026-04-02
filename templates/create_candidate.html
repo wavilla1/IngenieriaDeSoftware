@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}New Candidate — Profile Manager{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>➕ Create Candidate</h2>
+  <p>Register a new candidate and their skills in the graph.</p>
+
+  {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" class="form">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label for="name">Candidate Name</label>
+      <input type="text" id="name" name="name" placeholder="e.g. Alice" required />
+    </div>
+
+    <div class="form-group">
+      <label for="skills">Skills <small>(comma-separated)</small></label>
+      <input type="text" id="skills" name="skills"
+             placeholder="e.g. Python, SQL, Docker" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Candidate</button>
+  </form>
+</section>
+{% endblock %}

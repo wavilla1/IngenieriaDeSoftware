@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Job Vacancies — Profile Manager{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>💼 Job Vacancies</h2>
+  <p>Below are all available positions and their required skills.</p>
+
+  {% if jobs %}
+    <div class="job-grid">
+      {% for job in jobs %}
+      <div class="job-card">
+        <h3>{{ job.name }}</h3>
+
+        <div class="skills-section">
+          <strong>Required skills:</strong>
+          <div class="tags">
+            {% for skill in job.required_skills %}
+              <span class="tag">{{ skill }}</span>
+            {% empty %}
+              <em>No skills specified</em>
+            {% endfor %}
+          </div>
+        </div>
+
+        <form method="POST" action="{% url 'apply' job.name %}">
+          {% csrf_token %}
+          <input type="text" name="candidate_name"
+                 placeholder="Your name to apply" class="apply-input" />
+          <button type="submit" class="btn btn-primary">Apply</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No vacancies found.
+       Run <code>python manage.py load_demo_data</code> to populate demo data.</p>
+  {% endif %}
+</section>
+{% endblock %}
