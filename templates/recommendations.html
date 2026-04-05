@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Recommendations for {{ candidate_name }} — Profile Manager{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>🎯 Recommendations for <em>{{ candidate_name }}</em></h2>
+
+  {% if recs %}
+    <div class="job-grid">
+      {% for r in recs %}
+      <div class="job-card {% if r.score >= 0.7 %}high-match{% elif r.score >= 0.4 %}mid-match{% else %}low-match{% endif %}">
+
+        <h3>{{ r.vacante }}</h3>
+
+        <div class="score-bar-wrapper">
+          <div class="score-bar" style="width: {{ r.score_pct }}%"></div>
+        </div>
+        <p class="score-label">Match score: <strong>{{ r.score|floatformat:2 }}</strong></p>
+
+        <p class="explanation">💡 {{ r.explanation }}</p>
+
+        {% if r.matched_skills %}
+        <div class="skills-section">
+          <strong>✅ Matched skills:</strong>
+          <div class="tags">
+            {% for skill in r.matched_skills %}
+              <span class="tag tag-match">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if r.missing_skills %}
+        <div class="skills-section">
+          <strong>❌ Missing skills:</strong>
+          <div class="tags">
+            {% for skill in r.missing_skills %}
+              <span class="tag tag-missing">{{ skill }}</span>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'apply' r.vacante %}">
+          {% csrf_token %}
+          <input type="hidden" name="candidate_name" value="{{ candidate_name }}" />
+          <button type="submit" class="btn btn-primary">Apply</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No recommendations found for <strong>{{ candidate_name }}</strong>.
+       Make sure jobs are loaded and the candidate has skills registered.</p>
+  {% endif %}
+
+  <div class="back-link">
+    <a href="{% url 'candidate_list' %}">← Back to candidates</a>
+  </div>
+</section>
+{% endblock %}
