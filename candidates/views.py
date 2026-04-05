@@ -36,7 +36,7 @@ def create_candidate(request):
                         """,
                         {"name": name, "skill": skill},
                     )
-                return redirect("jobs")
+                return redirect("recommendations", name=name)
             except RuntimeError as exc:
                 error = str(exc)
 
