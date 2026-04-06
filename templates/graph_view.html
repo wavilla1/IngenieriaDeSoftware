@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Graph View{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Graph View</h2>
+  <p>
+    Interactive graph generated from Neo4j data without external Bolt connection.
+    Nodes: <strong>{{ node_count }}</strong> · Edges: <strong>{{ edge_count }}</strong>
+  </p>
+
+  {% if not error and node_count == 0 %}
+    <p>No graph data found yet. Load demo data and refresh this page.</p>
+  {% endif %}
+
+  <div id="graph-canvas" class="graph-canvas"></div>
+</section>
+
+<script src="https://unpkg.com/vis-network@9.1.9/dist/vis-network.min.js"></script>
+<script>
+  (function () {
+    const hasError = {{ has_error|yesno:"true,false" }};
+    if (hasError) {
+      return;
+    }
+
+    const nodes = new vis.DataSet({{ nodes_json|safe }});
+    const edges = new vis.DataSet({{ edges_json|safe }});
+    const container = document.getElementById("graph-canvas");
+
+    if (!container || nodes.length === 0) {
+      return;
+    }
+
+    const options = {
+      nodes: {
+        shape: "dot",
+        size: 18,
+        font: { size: 13, color: "#1a1a2e" },
+        borderWidth: 1,
+      },
+      edges: {
+        width: 1,
+        smooth: { type: "dynamic" },
+        color: { color: "#6b7ba8", highlight: "#3451d1" },
+        font: { align: "middle", size: 10 },
+      },
+      groups: {
+        Candidato: { color: { background: "#d4edda", border: "#28a745" } },
+        Vacante: { color: { background: "#ffe8cc", border: "#fd7e14" } },
+        Skill: { color: { background: "#e8ecfd", border: "#4361ee" } },
+      },
+      physics: {
+        stabilization: true,
+        barnesHut: { springLength: 120 },
+      },
+      interaction: {
+        hover: true,
+        navigationButtons: true,
+      },
+    };
+
+    new vis.Network(container, { nodes, edges }, options);
+  })();
+</script>
+{% endblock %}

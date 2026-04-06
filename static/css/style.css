@@ -301,3 +301,13 @@ footer {
 
 /* ── Back link ────────────────────────────────────────── */
 .back-link { margin-top: 1.5rem; }
+
+/* ── Graph View ───────────────────────────────────────── */
+.graph-canvas {
+  width: 100%;
+  height: 70vh;
+  min-height: 420px;
+  border: 1px solid #dde;
+  border-radius: 8px;
+  background: #fcfdff;
+}
