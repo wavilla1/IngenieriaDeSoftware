@@ -4,4 +4,5 @@ from matching import views
 
 urlpatterns = [
     path("recommendations/<str:name>/", views.recommendations, name="recommendations"),
+    path("graph/", views.graph_view, name="graph"),
 ]

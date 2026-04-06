@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Knowledge Graph — Profile Manager{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>🕸️ Knowledge Graph</h2>
+  <p>
+    Interactive view of all <strong>Candidates</strong>, <strong>Skills</strong>, and
+    <strong>Vacancies</strong> stored in Neo4j.
+    Drag nodes to rearrange, scroll to zoom.
+  </p>
+
+  <div class="graph-legend">
+    <span class="legend-dot candidate"></span> Candidate &nbsp;
+    <span class="legend-dot skill"></span> Skill &nbsp;
+    <span class="legend-dot vacancy"></span> Vacancy
+  </div>
+
+  {% if error %}
+    <div class="alert alert-error">
+      <strong>⚠ Graph unavailable:</strong> {{ error }}
+      <p>Please ensure Neo4j is running and data has been loaded.</p>
+    </div>
+  {% else %}
+    <div id="graph-container"></div>
+  {% endif %}
+
+  <div class="back-link">
+    <a href="{% url 'candidate_list' %}">← Back to candidates</a>
+  </div>
+</section>
+
+<!-- vis-network CDN -->
+<script src="https://unpkg.com/vis-network@9.1.9/standalone/umd/vis-network.min.js"></script>
+
+<script>
+  const nodes = new vis.DataSet({{ nodes_json|safe }});
+  const edges = new vis.DataSet({{ edges_json|safe }});
+
+  const groupColors = {
+    candidate: { color: { background: "#4361ee", border: "#3451d1" }, font: { color: "#fff" } },
+    skill:     { color: { background: "#28a745", border: "#1e7e34" }, font: { color: "#fff" } },
+    vacancy:   { color: { background: "#ffc107", border: "#e0a800" }, font: { color: "#1a1a2e" } },
+    other:     { color: { background: "#adb5bd", border: "#868e96" }, font: { color: "#fff" } },
+  };
+
+  const container = document.getElementById("graph-container");
+  const network = new vis.Network(
+    container,
+    { nodes, edges },
+    {
+      groups: groupColors,
+      nodes: {
+        shape: "dot",
+        size: 22,
+        font: { size: 14, face: "Segoe UI, Arial, sans-serif" },
+        borderWidth: 2,
+      },
+      edges: {
+        arrows: { to: { enabled: true, scaleFactor: 0.7 } },
+        font: { size: 11, align: "middle", color: "#555" },
+        color: { color: "#aaa", highlight: "#4361ee" },
+        smooth: { type: "dynamic" },
+      },
+      physics: {
+        stabilization: { iterations: 150 },
+        barnesHut: { gravitationalConstant: -8000, springLength: 120 },
+      },
+      interaction: { hover: true, tooltipDelay: 100 },
+    }
+  );
+</script>
+
+<style>
+  #graph-container {
+    width: 100%;
+    height: 560px;
+    border: 1px solid #dde;
+    border-radius: 8px;
+    background: #fafbff;
+    margin: 1rem 0;
+  }
+
+  .graph-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .legend-dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    vertical-align: middle;
+  }
+
+  .legend-dot.candidate { background: #4361ee; }
+  .legend-dot.skill     { background: #28a745; }
+  .legend-dot.vacancy   { background: #ffc107; }
+</style>
+{% endblock %}
