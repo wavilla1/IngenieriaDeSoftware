@@ -27,8 +27,10 @@
           </td>
           <td>
             <a href="{% url 'recommendations' candidate.name %}" class="btn btn-sm">Ver Recomendaciones</a>
-            <a href="{% url 'edit_candidate' candidate.name %}" class="btn btn-sm" style="background-color: #6b7ba8;">Editar</a>
-            <a href="{% url 'delete_candidate' candidate.name %}" class="btn btn-sm" style="background-color: #dc3545;" onclick="return confirm('¿Estas seguro?')">Eliminar</a>
+            {% if is_admin or candidate.name == current_user %}
+              <a href="{% url 'edit_candidate' candidate.name %}" class="btn btn-sm" style="background-color: #6b7ba8;">Editar</a>
+              <a href="{% url 'delete_candidate' candidate.name %}" class="btn btn-sm" style="background-color: #dc3545;" onclick="return confirm('¿Estas seguro?')">Eliminar</a>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}

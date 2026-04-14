@@ -6,12 +6,29 @@ relative to a given candidate, and provides skill-level explainability.
 """
 import json
 
-from django.shortcuts import render
+from django.http import HttpResponseForbidden
+from django.shortcuts import render, redirect
 from matching.service import db
+
+
+def _require_login(request):
+    if not request.session.get("user"):
+        return redirect("login")
+    return None
+
+
+def _is_admin(request):
+    return bool(request.session.get("is_admin"))
 
 
 def recommendations(request, name):
     """Show ranked job recommendations for a candidate."""
+    login_redirect = _require_login(request)
+    if login_redirect:
+        return login_redirect
+    if not _is_admin(request) and name != request.session.get("user"):
+        return HttpResponseForbidden("No tienes permisos para ver estas recomendaciones.")
+
     error = None
     recs = []
 
@@ -79,6 +96,10 @@ def recommendations(request, name):
 
 def graph_view(request):
     """Render an in-app graph visualization of candidates, jobs and skills."""
+    login_redirect = _require_login(request)
+    if login_redirect:
+        return login_redirect
+
     error = None
     nodes = []
     edges = []

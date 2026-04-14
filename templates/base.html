@@ -13,11 +13,16 @@
     <div class="header-inner">
       <span class="logo">🧠 Gestor de perfiles</span>
       <nav>
-        <a href="{% url 'create_candidate' %}">Nuevo Candidato</a>
-        <a href="{% url 'candidate_list' %}">Candidatos</a>
-        <a href="{% url 'jobs' %}">Vacantes de Empleo</a>
-        <a href="{% url 'graph_view' %}">Gráfico</a>
         {% if request.session.user %}
+          {% if request.session.is_admin %}
+            <a href="{% url 'create_candidate' %}">Postular un candidato</a>
+            <a href="{% url 'candidate_list' %}">Candidatos</a>
+          {% else %}
+            <a href="{% url 'create_candidate' %}">Mi Perfil de Candidato</a>
+            <a href="{% url 'recommendations' request.session.user %}">Mis recomendaciones</a>
+          {% endif %}
+          <a href="{% url 'jobs' %}">Vacantes de Empleo</a>
+          <a href="{% url 'graph_view' %}">Gráfico</a>
           <a href="{% url 'profile' %}">👤 {{ request.session.user }}</a>
           <a href="{% url 'logout' %}">Cerrar Sesión</a>
         {% else %}

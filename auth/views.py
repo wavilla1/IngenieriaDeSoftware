@@ -3,6 +3,14 @@ from django.shortcuts import render, redirect
 from matching.service import db
 
 
+VALID_ROLES = {"admin", "user"}
+
+
+def _normalize_role(raw_role):
+    role = (raw_role or "user").strip().lower()
+    return role if role in VALID_ROLES else "user"
+
+
 def login(request):
     """Login view."""
     error = None
@@ -10,6 +18,7 @@ def login(request):
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
+        selected_role = _normalize_role(request.POST.get("role"))
         
         if not username or not password:
             error = "Usuario y contraseña son requeridos."
@@ -18,12 +27,19 @@ def login(request):
                 result = db.query(
                     """
                     MATCH (u:Postulante {username: $username, password: $password})
-                    RETURN u.username AS username
+                    RETURN u.username AS username, coalesce(u.role, 'user') AS role
                     """,
                     {"username": username, "password": password},
                 )
                 if result:
+                    stored_role = _normalize_role(result[0].get("role"))
+                    if stored_role != selected_role:
+                        error = "El rol seleccionado no coincide con este usuario."
+                        return render(request, "login.html", {"error": error})
+
                     request.session["user"] = username
+                    request.session["role"] = stored_role
+                    request.session["is_admin"] = stored_role == "admin"
                     request.session.set_expiry(None)
                     return redirect("candidate_list")
                 error = "Usuario o contraseña incorrectos."
@@ -42,6 +58,7 @@ def register(request):
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
         confirm_password = request.POST.get("confirm_password", "").strip()
+        role = _normalize_role(request.POST.get("role"))
         
         if not username or not password:
             error = "Usuario y contraseña son requeridos."
@@ -59,11 +76,20 @@ def register(request):
                     error = "Este usuario ya existe."
                 else:
                     db.query(
-                        "CREATE (u:Postulante {username: $username, password: $password})",
-                        {"username": username, "password": password},
+                        """
+                        CREATE (u:Postulante {
+                          username: $username,
+                          password: $password,
+                          role: $role
+                        })
+                        """,
+                        {"username": username, "password": password, "role": role},
                     )
                     success = True
                     request.session["user"] = username
+                    request.session["role"] = role
+                    request.session["is_admin"] = role == "admin"
+                    request.session.set_expiry(None)
                     return redirect("candidate_list")
             except RuntimeError as exc:
                 error = str(exc)
@@ -73,9 +99,8 @@ def register(request):
 
 def logout(request):
     """Logout view."""
-    if "user" in request.session:
-        del request.session["user"]
-    return redirect("create_candidate")
+    request.session.flush()
+    return redirect("login")
 
 
 def profile(request):
@@ -83,5 +108,25 @@ def profile(request):
     user = request.session.get("user")
     if not user:
         return redirect("login")
+
+    role = request.session.get("role", "user")
+    applications = []
+    error = None
+
+    try:
+        applications = db.query(
+            """
+            MATCH (u:Postulante {username: $username})-[p:POSTULO_A]->(v:Vacante)
+            RETURN v.name AS job_name
+            ORDER BY job_name
+            """,
+            {"username": user},
+        )
+    except RuntimeError as exc:
+        error = str(exc)
     
-    return render(request, "profile.html", {"username": user})
+    return render(
+        request,
+        "profile.html",
+        {"username": user, "role": role, "applications": applications, "error": error},
+    )

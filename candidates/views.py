@@ -4,6 +4,7 @@ Candidates views.
 Handles candidate creation (with one or more skills) and candidate listing.
 """
 from django.shortcuts import render, redirect
+from django.http import HttpResponseForbidden
 from matching.service import db
 
 
@@ -12,6 +13,10 @@ def _require_login(request):
     if not request.session.get("user"):
         return redirect("login")
     return None
+
+
+def _is_admin(request):
+    return bool(request.session.get("is_admin"))
 
 
 def create_candidate(request):
@@ -25,9 +30,15 @@ def create_candidate(request):
         return login_redirect
 
     error = None
+    is_admin = _is_admin(request)
+    current_user = request.session.get("user", "")
 
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        if is_admin:
+            name = request.POST.get("name", "").strip()
+        else:
+            # Regular users can only create/update their own candidate profile.
+            name = current_user
         # Accept a comma-separated list of skills
         skills_raw = request.POST.get("skills", "").strip()
         skills = [s.strip() for s in skills_raw.split(",") if s.strip()]
@@ -51,7 +62,15 @@ def create_candidate(request):
             except RuntimeError as exc:
                 error = str(exc)
 
-    return render(request, "create_candidate.html", {"error": error})
+    return render(
+        request,
+        "create_candidate.html",
+        {
+            "error": error,
+            "is_admin": is_admin,
+            "current_user": current_user,
+        },
+    )
 
 
 def candidate_list(request):
@@ -62,27 +81,51 @@ def candidate_list(request):
 
     error = None
     candidates = []
+    is_admin = _is_admin(request)
+    current_user = request.session.get("user", "")
 
     try:
-        results = db.query(
-            """
-            MATCH (c:Candidato)
-            OPTIONAL MATCH (c)-[:TIENE_SKILL]->(s:Skill)
-            RETURN c.name AS name, collect(s.name) AS skills
-            ORDER BY c.name
-            """
-        )
+        if is_admin:
+            results = db.query(
+                """
+                MATCH (c:Candidato)
+                OPTIONAL MATCH (c)-[:TIENE_SKILL]->(s:Skill)
+                RETURN c.name AS name, collect(s.name) AS skills
+                ORDER BY c.name
+                """
+            )
+        else:
+            results = db.query(
+                """
+                MATCH (c:Candidato {name: $name})
+                OPTIONAL MATCH (c)-[:TIENE_SKILL]->(s:Skill)
+                RETURN c.name AS name, collect(s.name) AS skills
+                """,
+                {"name": current_user},
+            )
         candidates = results
     except RuntimeError as exc:
         error = str(exc)
 
-    return render(request, "candidate_list.html", {"candidates": candidates, "error": error})
+    return render(
+        request,
+        "candidate_list.html",
+        {
+            "candidates": candidates,
+            "error": error,
+            "is_admin": is_admin,
+            "current_user": current_user,
+        },
+    )
 
 def edit_candidate(request, name):
     """Edit an existing candidate's skills."""
     login_redirect = _require_login(request)
     if login_redirect:
         return login_redirect
+
+    if not _is_admin(request) and name != request.session.get("user"):
+        return HttpResponseForbidden("No tienes permisos para editar este candidato.")
 
     error = None
     candidate = None
@@ -140,6 +183,9 @@ def delete_candidate(request, name):
     login_redirect = _require_login(request)
     if login_redirect:
         return login_redirect
+
+    if not _is_admin(request) and name != request.session.get("user"):
+        return HttpResponseForbidden("No tienes permisos para eliminar este candidato.")
 
     try:
         db.query(

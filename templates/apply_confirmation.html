@@ -6,6 +6,10 @@
   <div class="confirmation-icon">🎉</div>
   <h2>¡Aplicación Enviada!</h2>
 
+  {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
   {% if candidate_name %}
      <p><strong>{{ candidate_name }}</strong> se ha postulado exitosamente para
        <strong>{{ job_name }}</strong>.</p>

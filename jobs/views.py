@@ -5,6 +5,7 @@ Renders the list of all vacancies with their required skills,
 and handles the mock "Apply" action.
 """
 from django.shortcuts import render, redirect
+from django.http import HttpResponseForbidden
 from matching.service import db
 
 
@@ -15,6 +16,10 @@ def _require_login(request):
     return None
 
 
+def _is_admin(request):
+    return bool(request.session.get("is_admin"))
+
+
 def job_list(request):
     """Display all job vacancies with required skills."""
     login_redirect = _require_login(request)
@@ -23,6 +28,8 @@ def job_list(request):
 
     error = None
     jobs = []
+    applied_jobs = set()
+    current_user = request.session.get("user", "")
 
     try:
         results = db.query(
@@ -34,10 +41,30 @@ def job_list(request):
             """
         )
         jobs = results
+
+        applied_result = db.query(
+            """
+            MATCH (u:Postulante {username: $username})-[:POSTULO_A]->(v:Vacante)
+            RETURN collect(v.name) AS applied_jobs
+            """,
+            {"username": current_user},
+        )
+        if applied_result:
+            applied_jobs = set(applied_result[0].get("applied_jobs") or [])
     except RuntimeError as exc:
         error = str(exc)
 
-    return render(request, "job_list.html", {"jobs": jobs, "error": error})
+    return render(
+        request,
+        "job_list.html",
+        {
+            "jobs": jobs,
+            "error": error,
+            "is_admin": _is_admin(request),
+            "current_user": current_user,
+            "applied_jobs": applied_jobs,
+        },
+    )
 
 
 def apply(request, job_name):
@@ -52,10 +79,26 @@ def apply(request, job_name):
         return login_redirect
 
     candidate_name = request.session.get("user", "").strip()
+    error = None
+
+    if request.method == "POST":
+        try:
+            db.query(
+                """
+                MATCH (u:Postulante {username: $username})
+                MATCH (v:Vacante {name: $job_name})
+                MERGE (u)-[p:POSTULO_A]->(v)
+                SET p.updated_at = datetime()
+                """,
+                {"username": candidate_name, "job_name": job_name},
+            )
+        except RuntimeError as exc:
+            error = str(exc)
+
     return render(
         request,
         "apply_confirmation.html",
-        {"job_name": job_name, "candidate_name": candidate_name},
+        {"job_name": job_name, "candidate_name": candidate_name, "error": error},
     )
 
 
@@ -64,6 +107,8 @@ def create_job(request):
     login_redirect = _require_login(request)
     if login_redirect:
         return login_redirect
+    if not _is_admin(request):
+        return HttpResponseForbidden("Solo el administrador puede crear vacantes.")
 
     error = None
 
@@ -108,6 +153,8 @@ def edit_job(request, name):
     login_redirect = _require_login(request)
     if login_redirect:
         return login_redirect
+    if not _is_admin(request):
+        return HttpResponseForbidden("Solo el administrador puede editar vacantes.")
 
     error = None
     job = None
@@ -163,6 +210,8 @@ def delete_job(request, name):
     login_redirect = _require_login(request)
     if login_redirect:
         return login_redirect
+    if not _is_admin(request):
+        return HttpResponseForbidden("Solo el administrador puede eliminar vacantes.")
 
     try:
         db.query(

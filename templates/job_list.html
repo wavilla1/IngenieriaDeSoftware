@@ -5,9 +5,11 @@
 <section class="card">
   <h2>💼 Vacantes de Empleo</h2>
   <p>Aquí están todas las posiciones disponibles y sus habilidades requeridas.</p>
-  <div style="margin-bottom: 20px;">
-    <a href="{% url 'create_job' %}" class="btn btn-primary">+ Crear Nueva Vacante</a>
-  </div>
+  {% if is_admin %}
+    <div style="margin-bottom: 20px;">
+      <a href="{% url 'create_job' %}" class="btn btn-primary">+ Crear Nueva Vacante</a>
+    </div>
+  {% endif %}
 
   {% if jobs %}
     <div class="job-grid">
@@ -28,18 +30,24 @@
 
         <form method="POST" action="{% url 'apply' job.name %}">
           {% csrf_token %}
-          <p style="margin: 8px 0; font-size: 0.9rem; color: #555;">Postulando como: <strong>{{ request.session.user }}</strong></p>
+          <p style="margin: 8px 0; font-size: 0.9rem; color: #555;">Postulando como: <strong>{{ current_user }}</strong></p>
           <button type="submit" class="btn btn-primary">Postularse</button>
         </form>
-        <div style="margin-top: 10px; display: flex; gap: 5px;">
-          <a href="{% url 'edit_job' job.name %}" class="btn btn-sm" style="background-color: #6b7ba8;">Editar</a>
-          <a href="{% url 'delete_job' job.name %}" class="btn btn-sm" style="background-color: #dc3545;" onclick="return confirm('¿Estas seguro de eliminar esta vacante?')">Eliminar</a>
-        </div>
+        {% if job.name in applied_jobs %}
+          <p style="margin-top: 8px; color: #155724; font-size: 0.9rem;">Ya postulaste a esta vacante.</p>
+        {% endif %}
+
+        {% if is_admin %}
+          <div style="margin-top: 10px; display: flex; gap: 5px;">
+            <a href="{% url 'edit_job' job.name %}" class="btn btn-sm" style="background-color: #6b7ba8;">Editar</a>
+            <a href="{% url 'delete_job' job.name %}" class="btn btn-sm" style="background-color: #dc3545;" onclick="return confirm('¿Estas seguro de eliminar esta vacante?')">Eliminar</a>
+          </div>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
   {% else %}
-    <p>No hay vacantes. <a href="{% url 'create_job' %}">Crear una</a>.</p>
+    <p>No hay vacantes disponibles.</p>
   {% endif %}
 </section>
 {% endblock %}
