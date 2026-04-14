@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Mi Perfil — Gestor de perfiles{% endblock %}
+
+{% block content %}
+<section class="card" style="max-width: 500px; margin: 40px auto;">
+  <h2>👤 Mi Perfil</h2>
+
+  <div class="profile-info">
+    <p><strong>Usuario:</strong> {{ username }}</p>
+    <p style="margin-top: 20px;">Estás conectado como <strong>{{ username }}</strong>.</p>
+  </div>
+
+  <div style="margin-top: 30px; display: flex; gap: 10px;">
+    <a href="{% url 'candidate_list' %}" class="btn btn-primary">Ver Candidatos</a>
+    <a href="{% url 'jobs' %}" class="btn btn-primary">Ver Vacantes</a>
+    <a href="{% url 'logout' %}" class="btn" style="background-color: #dc3545;">Cerrar Sesión</a>
+  </div>
+</section>
+{% endblock %}

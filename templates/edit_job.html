@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Editar Vacante — Gestor de perfiles{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>✏️ Editar Vacante</h2>
+  
+  {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  {% if job %}
+    <form method="POST" class="form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="name">Nombre de la Vacante</label>
+        <input type="text" id="name" name="name" value="{{ job.name }}" disabled />
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Habilidades Requeridas <small>(separadas por comas)</small></label>
+        <input type="text" id="skills" name="skills"
+               value="{% if job.required_skills %}{{ job.required_skills|join:', ' }}{% endif %}"
+               placeholder="ej. Python, SQL, Docker" required />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      <a href="{% url 'jobs' %}" class="btn">Cancelar</a>
+    </form>
+  {% else %}
+    <p>Vacante no encontrada.</p>
+    <a href="{% url 'jobs' %}">Volver a la lista</a>
+  {% endif %}
+</section>
+{% endblock %}

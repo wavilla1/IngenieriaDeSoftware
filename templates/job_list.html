@@ -1,10 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Job Vacancies — Profile Manager{% endblock %}
+{% block title %}Vacantes de Empleo — Gestor de perfiles{% endblock %}
 
 {% block content %}
 <section class="card">
-  <h2>💼 Job Vacancies</h2>
-  <p>Below are all available positions and their required skills.</p>
+  <h2>💼 Vacantes de Empleo</h2>
+  <p>Aquí están todas las posiciones disponibles y sus habilidades requeridas.</p>
+  <div style="margin-bottom: 20px;">
+    <a href="{% url 'create_job' %}" class="btn btn-primary">+ Crear Nueva Vacante</a>
+  </div>
 
   {% if jobs %}
     <div class="job-grid">
@@ -13,28 +16,30 @@
         <h3>{{ job.name }}</h3>
 
         <div class="skills-section">
-          <strong>Required skills:</strong>
+          <strong>Habilidades requeridas:</strong>
           <div class="tags">
             {% for skill in job.required_skills %}
               <span class="tag">{{ skill }}</span>
             {% empty %}
-              <em>No skills specified</em>
+              <em>Sin habilidades especificadas</em>
             {% endfor %}
           </div>
         </div>
 
         <form method="POST" action="{% url 'apply' job.name %}">
           {% csrf_token %}
-          <input type="text" name="candidate_name"
-                 placeholder="Your name to apply" class="apply-input" />
-          <button type="submit" class="btn btn-primary">Apply</button>
+          <p style="margin: 8px 0; font-size: 0.9rem; color: #555;">Postulando como: <strong>{{ request.session.user }}</strong></p>
+          <button type="submit" class="btn btn-primary">Postularse</button>
         </form>
+        <div style="margin-top: 10px; display: flex; gap: 5px;">
+          <a href="{% url 'edit_job' job.name %}" class="btn btn-sm" style="background-color: #6b7ba8;">Editar</a>
+          <a href="{% url 'delete_job' job.name %}" class="btn btn-sm" style="background-color: #dc3545;" onclick="return confirm('¿Estas seguro de eliminar esta vacante?')">Eliminar</a>
+        </div>
       </div>
       {% endfor %}
     </div>
   {% else %}
-    <p>No vacancies found.
-       Run <code>python manage.py load_demo_data</code> to populate demo data.</p>
+    <p>No hay vacantes. <a href="{% url 'create_job' %}">Crear una</a>.</p>
   {% endif %}
 </section>
 {% endblock %}

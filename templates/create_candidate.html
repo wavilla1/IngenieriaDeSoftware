@@ -1,10 +1,10 @@
 {% extends "base.html" %}
-{% block title %}New Candidate — Profile Manager{% endblock %}
+{% block title %}Nuevo Candidato — Gestor de perfiles{% endblock %}
 
 {% block content %}
 <section class="card">
-  <h2>➕ Create Candidate</h2>
-  <p>Register a new candidate and their skills in the graph. After saving, the system will show the matching vacancies.</p>
+  <h2>➕ Nuevo Candidato</h2>
+  <p>Registra un nuevo candidato con sus habilidades. El sistema mostrará las vacantes que coinciden.</p>
 
   {% if error %}
     <div class="alert alert-error">{{ error }}</div>
@@ -14,17 +14,16 @@
     {% csrf_token %}
 
     <div class="form-group">
-      <label for="name">Candidate Name</label>
-      <input type="text" id="name" name="name" placeholder="e.g. Alice" required />
+      <label for="name">Nombre del Candidato</label>
+      <input type="text" id="name" name="name" placeholder="ej. Juan" required />
     </div>
 
     <div class="form-group">
-      <label for="skills">Skills <small>(comma-separated)</small></label>
-      <input type="text" id="skills" name="skills"
-             placeholder="e.g. Python, SQL, Docker" required />
+      <label for="skills">Habilidades <small>(separadas por comas)</small></label>
+      <input type="text" id="skills" name="skills" placeholder="ej. Python, SQL, Docker" required />
     </div>
 
-    <button type="submit" class="btn btn-primary">Save Candidate</button>
+    <button type="submit" class="btn btn-primary">Registrar Candidato</button>
   </form>
 </section>
 {% endblock %}

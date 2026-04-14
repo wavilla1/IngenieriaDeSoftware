@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Editar Candidato — Gestor de perfiles{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>✏️ Editar Candidato</h2>
+  
+  {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  {% if candidate %}
+    <form method="POST" class="form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="name">Nombre del Candidato</label>
+        <input type="text" id="name" name="name" value="{{ candidate.name }}" disabled />
+      </div>
+
+      <div class="form-group">
+        <label for="skills">Habilidades <small>(separadas por comas)</small></label>
+        <input type="text" id="skills" name="skills"
+               value="{% if candidate.skills %}{{ candidate.skills|join:', ' }}{% endif %}"
+               placeholder="ej. Python, SQL, Docker" required />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      <a href="{% url 'candidate_list' %}" class="btn">Cancelar</a>
+    </form>
+  {% else %}
+    <p>Candidato no encontrado.</p>
+    <a href="{% url 'candidate_list' %}">Volver a la lista</a>
+  {% endif %}
+</section>
+{% endblock %}

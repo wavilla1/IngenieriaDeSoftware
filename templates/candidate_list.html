@@ -1,17 +1,17 @@
 {% extends "base.html" %}
-{% block title %}Candidates — Profile Manager{% endblock %}
+{% block title %}Candidatos — Gestor de perfiles{% endblock %}
 
 {% block content %}
 <section class="card">
-  <h2>👥 Candidates</h2>
+  <h2>👥 Candidatos</h2>
 
   {% if candidates %}
     <table class="table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Skills</th>
-          <th>Recommendations</th>
+          <th>Nombre</th>
+          <th>Habilidades</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
@@ -22,20 +22,20 @@
             {% for skill in candidate.skills %}
               <span class="tag">{{ skill }}</span>
             {% empty %}
-              <em>No skills registered</em>
+              <em>Sin habilidades registradas</em>
             {% endfor %}
           </td>
           <td>
-            <a href="{% url 'recommendations' candidate.name %}" class="btn btn-sm">
-              View Recommendations
-            </a>
+            <a href="{% url 'recommendations' candidate.name %}" class="btn btn-sm">Ver Recomendaciones</a>
+            <a href="{% url 'edit_candidate' candidate.name %}" class="btn btn-sm" style="background-color: #6b7ba8;">Editar</a>
+            <a href="{% url 'delete_candidate' candidate.name %}" class="btn btn-sm" style="background-color: #dc3545;" onclick="return confirm('¿Estas seguro?')">Eliminar</a>
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
   {% else %}
-    <p>No candidates found. <a href="{% url 'create_candidate' %}">Create one</a>.</p>
+    <p>No hay candidatos. <a href="{% url 'create_candidate' %}">Crear uno</a>.</p>
   {% endif %}
 </section>
 {% endblock %}

@@ -5,4 +5,5 @@ urlpatterns = [
     path("", include("candidates.urls")),
     path("jobs/", include("jobs.urls")),
     path("matching/", include("matching.urls")),
+    path("auth/", include("auth.urls")),
 ]

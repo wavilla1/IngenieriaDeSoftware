@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Nueva Vacante — Gestor de perfiles{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>➕ Crear Vacante</h2>
+  <p>Añade una nueva posición disponible y las habilidades requeridas.</p>
+
+  {% if error %}
+    <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" class="form">
+    {% csrf_token %}
+
+    <div class="form-group">
+      <label for="name">Nombre de la Vacante</label>
+      <input type="text" id="name" name="name" placeholder="ej. Desarrollador Python" required />
+    </div>
+
+    <div class="form-group">
+      <label for="skills">Habilidades Requeridas <small>(separadas por comas)</small></label>
+      <input type="text" id="skills" name="skills"
+             placeholder="ej. Python, SQL, Docker" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Crear Vacante</button>
+    <a href="{% url 'jobs' %}" class="btn">Cancelar</a>
+  </form>
+</section>
+{% endblock %}

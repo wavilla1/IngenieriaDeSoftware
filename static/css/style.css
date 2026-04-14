@@ -46,9 +46,16 @@ header {
 
 nav a {
   color: #c8d6f8;
-  margin-left: 1.5rem;
   font-size: 0.95rem;
   transition: color 0.2s;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 nav a:hover { color: #fff; text-decoration: none; }
@@ -310,4 +317,22 @@ footer {
   border: 1px solid #dde;
   border-radius: 8px;
   background: #fcfdff;
+}
+
+@media (max-width: 900px) {
+  header {
+    height: auto;
+    padding: 0.75rem 1rem;
+  }
+
+  .header-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  nav {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }

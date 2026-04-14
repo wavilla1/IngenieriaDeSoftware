@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}Graph View{% endblock %}
+{% block title %}Vista Grafica{% endblock %}
 
 {% block content %}
 <section class="card">
-  <h2>Graph View</h2>
+  <h2>Vista Grafica de Datos</h2>
   <p>
-    Interactive graph generated from Neo4j data without external Bolt connection.
-    Nodes: <strong>{{ node_count }}</strong> · Edges: <strong>{{ edge_count }}</strong>
+    Grafica interactiva generada desde los datos de Neo4j.
+    Nodos: <strong>{{ node_count }}</strong> · Conexiones: <strong>{{ edge_count }}</strong>
   </p>
 
   {% if not error and node_count == 0 %}
-    <p>No graph data found yet. Load demo data and refresh this page.</p>
+    <p>Sin datos de grafica. Carga datos de demostración y recarga la página.</p>
   {% endif %}
 
   <div id="graph-canvas" class="graph-canvas"></div>

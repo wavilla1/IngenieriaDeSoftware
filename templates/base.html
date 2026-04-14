@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}Profile Manager{% endblock %}</title>
+  <title>{% block title %}Gestor de perfiles{% endblock %}</title>
   {% load static %}
   <link rel="stylesheet" href="{% static 'css/style.css' %}" />
 </head>
@@ -11,12 +11,19 @@
 
   <header>
     <div class="header-inner">
-      <span class="logo">🧠 Profile Manager</span>
+      <span class="logo">🧠 Gestor de perfiles</span>
       <nav>
-        <a href="{% url 'create_candidate' %}">New Candidate</a>
-        <a href="{% url 'candidate_list' %}">Candidates</a>
-        <a href="{% url 'jobs' %}">Job Vacancies</a>
-        <a href="{% url 'graph_view' %}">Graph</a>
+        <a href="{% url 'create_candidate' %}">Nuevo Candidato</a>
+        <a href="{% url 'candidate_list' %}">Candidatos</a>
+        <a href="{% url 'jobs' %}">Vacantes de Empleo</a>
+        <a href="{% url 'graph_view' %}">Gráfico</a>
+        {% if request.session.user %}
+          <a href="{% url 'profile' %}">👤 {{ request.session.user }}</a>
+          <a href="{% url 'logout' %}">Cerrar Sesión</a>
+        {% else %}
+          <a href="{% url 'login' %}">Iniciar Sesión</a>
+          <a href="{% url 'register' %}">Registrarse</a>
+        {% endif %}
       </nav>
     </div>
   </header>
@@ -24,8 +31,8 @@
   <main>
     {% if error %}
       <div class="alert alert-error">
-        <strong>⚠ Database unavailable:</strong> {{ error }}
-        <p>Please ensure Neo4j is running and try again.</p>
+        <strong>⚠ Base de datos no disponible:</strong> {{ error }}
+        <p>Verifica que Neo4j este en ejecucion e intenta nuevamente.</p>
       </div>
     {% endif %}
 
@@ -33,7 +40,7 @@
   </main>
 
   <footer>
-    <p>Profile Manager — Academic MVP · Django + Neo4j</p>
+    <p>Gestor de perfiles · MVP academico con Django + Neo4j</p>
   </footer>
 
 </body>

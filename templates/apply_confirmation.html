@@ -1,23 +1,23 @@
 {% extends "base.html" %}
-{% block title %}Application Sent — Profile Manager{% endblock %}
+{% block title %}Aplicación Enviada — Gestor de perfiles{% endblock %}
 
 {% block content %}
 <section class="card confirmation">
   <div class="confirmation-icon">🎉</div>
-  <h2>Application Submitted!</h2>
+  <h2>¡Aplicación Enviada!</h2>
 
   {% if candidate_name %}
-    <p><strong>{{ candidate_name }}</strong> has successfully applied for
+     <p><strong>{{ candidate_name }}</strong> se ha postulado exitosamente para
        <strong>{{ job_name }}</strong>.</p>
   {% else %}
-    <p>Your application for <strong>{{ job_name }}</strong> has been submitted.</p>
+    <p>Tu aplicación para <strong>{{ job_name }}</strong> ha sido enviada.</p>
   {% endif %}
 
-  <p class="note">This is a demo action — no data is persisted.</p>
+  <p class="note">Nota: Esta es una acción de demostración.</p>
 
   <div class="actions">
-    <a href="{% url 'jobs' %}" class="btn btn-primary">Browse More Jobs</a>
-    <a href="{% url 'create_candidate' %}" class="btn">Register Another Candidate</a>
+    <a href="{% url 'jobs' %}" class="btn btn-primary">Ver Más Vacantes</a>
+    <a href="{% url 'create_candidate' %}" class="btn">Registrar Otro Candidato</a>
   </div>
 </section>
 {% endblock %}

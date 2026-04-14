@@ -19,11 +19,12 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost 127.0.0.1").split()
 if DEBUG:
-    ALLOWED_HOSTS += ["testserver"]
+    ALLOWED_HOSTS += ["testserver", "*"]
 
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.staticfiles",
+    "auth",
     "candidates",
     "jobs",
     "matching",
@@ -31,6 +32,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -55,6 +57,9 @@ WSGI_APPLICATION = "profile_manager.wsgi.application"
 
 # No traditional database needed (Neo4j handles persistence)
 DATABASES = {}
+
+# Session backend without SQL database (works well for this MVP)
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = "/static/"
