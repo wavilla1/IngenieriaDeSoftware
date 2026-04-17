@@ -1,6 +1,6 @@
 # Profile Manager — Django + Neo4j MVP
 
-An academic MVP that demonstrates **graph-based job recommendation** using
+MVP that demonstrates **graph-based job recommendation** using
 Django as the web framework and Neo4j as the backend graph database.
 
 ---
